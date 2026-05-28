@@ -3,69 +3,187 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
-from plotly.subplots import make_subplots
 
 # -------------------------------------------------
-# CONFIG GENERALE
+# CONFIG
 # -------------------------------------------------
 st.set_page_config(
     page_title="SRM Smart Energy Guard",
-    page_icon="https://cdn-icons-png.flaticon.com/512/1600/1600494.png",
+    page_icon="⚡",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
 # -------------------------------------------------
-# CSS PERSONNALISE
+# CSS — STYLE CLAIR ACADEMIQUE
 # -------------------------------------------------
 st.markdown("""
 <style>
-    :root {
-        --primary: #00C9FF;
-        --accent: #FF6B35;
-        --bg-dark: #0E1117;
-        --card-bg: #1A1F2E;
-        --success: #00E676;
-        --warning: #FFD600;
-        --danger: #FF1744;
-    }
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
 
-    .stApp { background-color: var(--bg-dark); }
+* { font-family: 'IBM Plex Sans', sans-serif; }
 
-    .kpi-card {
-        background: linear-gradient(135deg, #1A1F2E, #252B3B);
-        border: 1px solid #2D3454;
-        border-radius: 12px;
-        padding: 20px;
-        text-align: center;
-        box-shadow: 0 4px 20px rgba(0,201,255,0.08);
-    }
-    .kpi-value { font-size: 2.2rem; font-weight: 700; color: #00C9FF; }
-    .kpi-label { font-size: 0.85rem; color: #8892B0; margin-top: 4px; }
+.stApp {
+    background-color: #F7F8FA;
+    color: #1A1D23;
+}
 
-    .section-title {
-        font-size: 1.4rem;
-        font-weight: 600;
-        color: #CCD6F6;
-        border-left: 4px solid #00C9FF;
-        padding-left: 12px;
-        margin: 24px 0 16px 0;
-    }
+/* Sidebar */
+section[data-testid="stSidebar"] {
+    background-color: #1C2B4A !important;
+    border-right: none;
+}
+section[data-testid="stSidebar"] * {
+    color: #E8EDF5 !important;
+}
+section[data-testid="stSidebar"] .stRadio label {
+    color: #E8EDF5 !important;
+    font-size: 0.95rem;
+    padding: 6px 0;
+}
 
-    .badge-critique { background:#FF1744; color:white; padding:3px 10px; border-radius:20px; font-size:0.8rem; font-weight:600; }
-    .badge-eleve    { background:#FF6B35; color:white; padding:3px 10px; border-radius:20px; font-size:0.8rem; font-weight:600; }
-    .badge-modere   { background:#FFD600; color:black; padding:3px 10px; border-radius:20px; font-size:0.8rem; font-weight:600; }
-    .badge-faible   { background:#00E676; color:black; padding:3px 10px; border-radius:20px; font-size:0.8rem; font-weight:600; }
+/* Header de page */
+.page-header {
+    background: linear-gradient(135deg, #1C2B4A 0%, #2D4A7A 100%);
+    color: white;
+    padding: 28px 36px;
+    border-radius: 12px;
+    margin-bottom: 28px;
+    border-left: 5px solid #4A9EFF;
+}
+.page-header h1 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin: 0 0 6px 0;
+    color: white;
+    letter-spacing: -0.3px;
+}
+.page-header p {
+    font-size: 0.9rem;
+    color: #A8C4E8;
+    margin: 0;
+}
 
-    section[data-testid="stSidebar"] { background-color: #131722; }
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
+/* KPI Cards */
+.kpi-card {
+    background: white;
+    border: 1px solid #E2E8F0;
+    border-radius: 10px;
+    padding: 22px 20px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border-top: 3px solid #1C2B4A;
+    transition: box-shadow 0.2s;
+}
+.kpi-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+.kpi-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1C2B4A;
+    font-family: 'IBM Plex Mono', monospace;
+}
+.kpi-label {
+    font-size: 0.78rem;
+    color: #64748B;
+    margin-top: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 500;
+}
+.kpi-card.accent-blue  { border-top-color: #2563EB; }
+.kpi-card.accent-green { border-top-color: #16A34A; }
+.kpi-card.accent-red   { border-top-color: #DC2626; }
+.kpi-card.accent-amber { border-top-color: #D97706; }
+.kpi-card.accent-navy  { border-top-color: #1C2B4A; }
+
+/* Section title */
+.section-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #1C2B4A;
+    border-bottom: 2px solid #E2E8F0;
+    padding-bottom: 8px;
+    margin: 28px 0 16px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Badges */
+.badge {
+    display: inline-block;
+    padding: 3px 12px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+.badge-critique { background:#FEE2E2; color:#991B1B; border:1px solid #FECACA; }
+.badge-eleve    { background:#FEF3C7; color:#92400E; border:1px solid #FDE68A; }
+.badge-modere   { background:#DBEAFE; color:#1E40AF; border:1px solid #BFDBFE; }
+.badge-faible   { background:#DCFCE7; color:#166534; border:1px solid #BBF7D0; }
+
+/* Chart container */
+.chart-box {
+    background: white;
+    border: 1px solid #E2E8F0;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    margin-bottom: 16px;
+}
+
+/* Info box */
+.info-box {
+    background: #EFF6FF;
+    border: 1px solid #BFDBFE;
+    border-left: 4px solid #2563EB;
+    border-radius: 8px;
+    padding: 14px 18px;
+    color: #1E40AF;
+    font-size: 0.9rem;
+    margin: 12px 0;
+}
+
+#MainMenu {visibility: hidden;}
+footer {visibility: hidden;}
 </style>
 """, unsafe_allow_html=True)
 
+# -------------------------------------------------
+# THEME PLOTLY CLAIR
+# -------------------------------------------------
+PLOTLY_LIGHT = dict(
+    template="plotly_white",
+    paper_bgcolor="rgba(0,0,0,0)",
+    plot_bgcolor="rgba(0,0,0,0)",
+    font=dict(family="IBM Plex Sans", color="#1A1D23", size=12),
+)
+
+PALETTE = {
+    "bleu":   "#2563EB",
+    "vert":   "#16A34A",
+    "rouge":  "#DC2626",
+    "ambre":  "#D97706",
+    "marine": "#1C2B4A",
+    "gris":   "#64748B",
+}
+
+TYPE_COLORS = {
+    "résidentiel": "#2563EB",
+    "commercial":  "#D97706",
+    "industriel":  "#DC2626",
+}
+
+RISK_COLORS = {
+    "Faible":   "#16A34A",
+    "Modere":   "#2563EB",
+    "Eleve":    "#D97706",
+    "Critique": "#DC2626",
+}
 
 # -------------------------------------------------
-# FONCTIONS UTILITAIRES
+# FONCTIONS
 # -------------------------------------------------
 
 @st.cache_data(show_spinner=False)
@@ -95,55 +213,57 @@ def compute_risk_score(df: pd.DataFrame) -> pd.DataFrame:
     ) * 100
 
     def niveau(s):
-        if s >= 9:    return "Critique"
-        elif s >= 6:  return "Eleve"
-        elif s >= 3:  return "Modere"
-        else:         return "Faible"
+        if s >= 9:   return "Critique"
+        elif s >= 6: return "Eleve"
+        elif s >= 3: return "Modere"
+        else:        return "Faible"
 
     agg["niveau_risque"] = agg["score_risque"].apply(niveau)
     return agg
 
 
-def detect_anomalies_if(df: pd.DataFrame) -> pd.Series:
+def detect_anomalies(df: pd.DataFrame) -> pd.Series:
     z = (df["consommation_kwh"] - df["conso_moy_7j"]) / (df["std_24h"] + 1e-9)
     return (z.abs() > 3).astype(int)
 
 
-PLOTLY_THEME = dict(
-    template="plotly_dark",
-    paper_bgcolor="rgba(0,0,0,0)",
-    plot_bgcolor="rgba(0,0,0,0)",
-)
+def kpi(value, label, accent="navy"):
+    return f"""
+    <div class='kpi-card accent-{accent}'>
+        <div class='kpi-value'>{value}</div>
+        <div class='kpi-label'>{label}</div>
+    </div>"""
 
-COLORS = {
-    "résidentiel": "#00C9FF",
-    "commercial":  "#FF6B35",
-    "industriel":  "#FFD600",
-}
-RISK_COLORS = {
-    "Faible":   "#00E676",
-    "Modere":   "#FFD600",
-    "Eleve":    "#FF6B35",
-    "Critique": "#FF1744",
-}
+
+def section(title):
+    st.markdown(f"<div class='section-title'>{title}</div>", unsafe_allow_html=True)
 
 
 # -------------------------------------------------
 # SIDEBAR
 # -------------------------------------------------
-
 with st.sidebar:
-    st.markdown("## SRM Smart Energy Guard")
-    st.markdown("---")
+    st.markdown("""
+    <div style='padding:20px 16px 8px;'>
+        <div style='font-size:1.2rem; font-weight:700; color:white; letter-spacing:-0.3px;'>
+            SRM Smart Energy Guard
+        </div>
+        <div style='font-size:0.78rem; color:#A8C4E8; margin-top:4px;'>
+            Surveillance energetique intelligente
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("<hr style='border-color:#2D4A7A; margin:8px 0 16px;'>", unsafe_allow_html=True)
 
     uploaded = st.file_uploader(
-        "Charger srm_100clients.parquet",
+        "Charger les donnees",
         type=["parquet"],
-        help="Glissez-deposez votre fichier parquet ici",
+        help="Fichier srm_100clients.parquet",
     )
 
     if uploaded:
-        with st.spinner("Chargement des donnees..."):
+        with st.spinner("Chargement..."):
             df_raw = load_data(uploaded)
         st.success(f"{len(df_raw):,} lignes chargees")
         DATA_LOADED = True
@@ -151,34 +271,46 @@ with st.sidebar:
         df_raw = None
         DATA_LOADED = False
 
-    st.markdown("---")
+    st.markdown("<hr style='border-color:#2D4A7A; margin:16px 0;'>", unsafe_allow_html=True)
+
     page = st.radio(
         "Navigation",
-        ["Vue Globale", "Surveillance Client", "Score de Risque",
-         "Predictions", "Alertes"],
+        ["Vue Globale", "Surveillance Client", "Score de Risque", "Predictions", "Alertes"],
     )
-    st.markdown("---")
-    st.markdown("<small style='color:#8892B0'>PFE Licence 2024-2025<br>SRM Smart Energy Guard</small>",
-                unsafe_allow_html=True)
+
+    st.markdown("<hr style='border-color:#2D4A7A; margin:16px 0 8px;'>", unsafe_allow_html=True)
+    st.markdown("""
+    <div style='padding:0 4px; font-size:0.75rem; color:#7A9CC4; line-height:1.6;'>
+        PFE Licence 2024-2025<br>
+        Dataset : UCI ElectricityLoadDiagrams<br>
+        100 clients — 3.4M observations
+    </div>
+    """, unsafe_allow_html=True)
 
 
 # -------------------------------------------------
-# PAGE ACCUEIL SI PAS DE DONNEES
+# PAGE D'ACCUEIL
 # -------------------------------------------------
-
 if not DATA_LOADED:
     st.markdown("""
     <div style='text-align:center; padding:80px 20px;'>
-        <h1 style='color:#00C9FF; font-size:2.5rem; margin:12px 0;'>SRM Smart Energy Guard</h1>
-        <p style='color:#8892B0; font-size:1.1rem; max-width:500px; margin:0 auto 32px;'>
-            Systeme intelligent de surveillance energetique — PFE Licence
+        <div style='font-size:3rem; margin-bottom:16px;'>⚡</div>
+        <h1 style='font-size:2.2rem; font-weight:700; color:#1C2B4A; margin-bottom:8px;'>
+            SRM Smart Energy Guard
+        </h1>
+        <p style='color:#64748B; font-size:1rem; max-width:480px; margin:0 auto 40px;'>
+            Systeme intelligent de surveillance energetique<br>
+            <strong>PFE Licence 2024-2025</strong>
         </p>
-        <div style='background:#1A1F2E; border:1px solid #2D3454; border-radius:12px;
-                    padding:32px; max-width:440px; margin:0 auto;'>
-            <p style='color:#CCD6F6; font-size:1rem;'>
-                Commencez par charger votre fichier<br>
-                <strong style='color:#00C9FF;'>srm_100clients.parquet</strong><br>
-                dans la barre laterale gauche
+        <div style='background:white; border:1px solid #E2E8F0; border-radius:12px;
+                    padding:36px; max-width:420px; margin:0 auto;
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.08);'>
+            <p style='color:#1C2B4A; font-size:1rem; font-weight:500; margin:0 0 8px;'>
+                Pour commencer
+            </p>
+            <p style='color:#64748B; font-size:0.9rem; margin:0;'>
+                Chargez le fichier <strong>srm_100clients.parquet</strong>
+                depuis la barre de navigation a gauche.
             </p>
         </div>
     </div>
@@ -187,13 +319,15 @@ if not DATA_LOADED:
 
 
 # -------------------------------------------------
-# DONNEES CHARGEES — CALCULS COMMUNS
+# DONNEES CHARGEES
 # -------------------------------------------------
-
 df = df_raw.copy()
 risk_df = compute_risk_score(df)
-n_clients = df["client_id"].nunique()
-n_anomalies_est = int(len(df) * 0.0462)
+n_clients   = df["client_id"].nunique()
+n_anom      = int(len(df) * 0.0462)
+n_critique  = risk_df[risk_df.niveau_risque == "Critique"].shape[0]
+n_eleve     = risk_df[risk_df.niveau_risque == "Eleve"].shape[0]
+conso_moy   = df["consommation_kwh"].mean()
 
 
 # ==================================================
@@ -201,86 +335,103 @@ n_anomalies_est = int(len(df) * 0.0462)
 # ==================================================
 
 if page == "Vue Globale":
-    st.markdown("## Vue Globale du Reseau")
 
-    col1, col2, col3, col4, col5 = st.columns(5)
-    kpis = [
-        (n_clients, "Clients surveilles"),
-        (f"{df['consommation_kwh'].mean():.1f} kWh", "Conso. moyenne"),
-        (f"{n_anomalies_est:,}", "Anomalies detectees (IF)"),
-        ("4.23 kWh", "MAE prevision LSTM"),
-        (f"{risk_df[risk_df.niveau_risque=='Critique'].shape[0]}", "Clients critiques"),
-    ]
-    for col, (val, label) in zip([col1, col2, col3, col4, col5], kpis):
-        col.markdown(f"""
-        <div class='kpi-card'>
-            <div class='kpi-value'>{val}</div>
-            <div class='kpi-label'>{label}</div>
-        </div>""", unsafe_allow_html=True)
+    st.markdown("""
+    <div class='page-header'>
+        <h1>Vue Globale du Reseau</h1>
+        <p>Analyse de la consommation energetique — 100 clients — Dataset UCI 2011-2014</p>
+    </div>""", unsafe_allow_html=True)
 
-    st.markdown("<div class='section-title'>Consommation journaliere par type de client</div>",
-                unsafe_allow_html=True)
+    # KPIs
+    c1, c2, c3, c4, c5 = st.columns(5)
+    c1.markdown(kpi(n_clients, "Clients surveilles", "navy"), unsafe_allow_html=True)
+    c2.markdown(kpi(f"{conso_moy:.1f} kWh", "Conso. moyenne", "bleu"), unsafe_allow_html=True)
+    c3.markdown(kpi(f"{n_anom:,}", "Anomalies detectees", "ambre"), unsafe_allow_html=True)
+    c4.markdown(kpi("4.23 kWh", "MAE LSTM (meilleur)", "vert"), unsafe_allow_html=True)
+    c5.markdown(kpi(f"{n_critique + n_eleve}", "Clients critique / eleve", "rouge"), unsafe_allow_html=True)
 
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # Graphique serie temporelle journaliere
+    section("Consommation journaliere moyenne par type de client")
     df["date_only"] = df["timestamp"].dt.date
-    daily_agg = df.groupby(["date_only", "type_client"])["consommation_kwh"].mean().reset_index()
-    daily_agg["date_only"] = pd.to_datetime(daily_agg["date_only"])
-    daily_agg["type_client"] = daily_agg["type_client"].astype(str)
-    palette = ["#00C9FF", "#FF6B35", "#FFD600"]
-    types_list = sorted(daily_agg["type_client"].unique().tolist())
-    color_map_daily = {t: palette[i % len(palette)] for i, t in enumerate(types_list)}
+    daily = df.groupby(["date_only", "type_client"])["consommation_kwh"].mean().reset_index()
+    daily["date_only"] = pd.to_datetime(daily["date_only"])
+    daily["type_client"] = daily["type_client"].astype(str)
+    types_list = sorted(daily["type_client"].unique().tolist())
+    pal = ["#2563EB", "#D97706", "#DC2626"]
+    cmap = {t: pal[i % len(pal)] for i, t in enumerate(types_list)}
+
     fig1 = go.Figure()
-    for type_c in types_list:
-        df_t = daily_agg[daily_agg["type_client"] == type_c]
+    for tc in types_list:
+        d = daily[daily["type_client"] == tc]
         fig1.add_trace(go.Scatter(
-            x=df_t["date_only"], y=df_t["consommation_kwh"],
-            mode="lines", name=type_c,
-            line=dict(color=color_map_daily[type_c], width=2),
+            x=d["date_only"], y=d["consommation_kwh"],
+            mode="lines", name=tc.capitalize(),
+            line=dict(color=cmap[tc], width=2),
         ))
-    fig1.update_layout(height=350, legend_title_text="Type client",
-                       xaxis=dict(showgrid=False), yaxis=dict(showgrid=True, gridcolor="#1E2535"),
-                       **PLOTLY_THEME)
+    fig1.update_layout(
+        height=340, **PLOTLY_LIGHT,
+        xaxis=dict(showgrid=False, title=""),
+        yaxis=dict(gridcolor="#F1F5F9", title="kWh moyen"),
+        legend=dict(orientation="h", y=1.08),
+        margin=dict(t=20, b=20, l=10, r=10),
+    )
     st.plotly_chart(fig1, use_container_width=True)
 
     col_a, col_b = st.columns(2)
 
     with col_a:
-        st.markdown("<div class='section-title'>Distribution par type de client</div>",
-                    unsafe_allow_html=True)
-        type_counts = df.groupby("type_client")["client_id"].nunique().reset_index()
-        type_counts.columns = ["type_client", "nb_clients"]
+        section("Repartition par type de client")
+        tc = df.groupby("type_client")["client_id"].nunique().reset_index()
+        tc.columns = ["type_client", "n"]
+        tc["type_client"] = tc["type_client"].astype(str)
         fig2 = px.pie(
-            type_counts, names="type_client", values="nb_clients",
-            color="type_client", color_discrete_map=COLORS,
-            hole=0.45, **PLOTLY_THEME,
+            tc, names="type_client", values="n",
+            color="type_client",
+            color_discrete_map={t: cmap.get(t, "#64748B") for t in tc["type_client"]},
+            hole=0.5, **PLOTLY_LIGHT,
         )
-        fig2.update_layout(height=300, showlegend=True)
+        fig2.update_traces(textfont_size=12)
+        fig2.update_layout(height=280, margin=dict(t=10, b=10))
         st.plotly_chart(fig2, use_container_width=True)
 
     with col_b:
-        st.markdown("<div class='section-title'>Profil horaire moyen</div>",
-                    unsafe_allow_html=True)
+        section("Profil horaire moyen par type")
         hourly = df.groupby(["heure", "type_client"])["consommation_kwh"].mean().reset_index()
-        fig3 = px.line(
-            hourly, x="heure", y="consommation_kwh", color="type_client",
-            color_discrete_map=COLORS, markers=True,
-            labels={"consommation_kwh": "kWh moyen", "heure": "Heure"},
-            **PLOTLY_THEME,
+        hourly["type_client"] = hourly["type_client"].astype(str)
+        fig3 = go.Figure()
+        for tc_val in types_list:
+            h = hourly[hourly["type_client"] == tc_val]
+            fig3.add_trace(go.Scatter(
+                x=h["heure"], y=h["consommation_kwh"],
+                mode="lines+markers", name=tc_val.capitalize(),
+                line=dict(color=cmap[tc_val], width=2),
+                marker=dict(size=5),
+            ))
+        fig3.update_layout(
+            height=280, **PLOTLY_LIGHT,
+            xaxis=dict(tickmode="linear", dtick=4, title="Heure", showgrid=False),
+            yaxis=dict(gridcolor="#F1F5F9", title="kWh"),
+            legend=dict(orientation="h", y=1.08),
+            margin=dict(t=10, b=20),
         )
-        fig3.update_layout(height=300, xaxis=dict(tickmode="linear", dtick=4),
-                           yaxis=dict(gridcolor="#1E2535"))
         st.plotly_chart(fig3, use_container_width=True)
 
-    st.markdown("<div class='section-title'>Heatmap — Consommation par heure x jour</div>",
-                unsafe_allow_html=True)
+    section("Heatmap de consommation — Heure x Jour de la semaine")
     pivot = df.groupby(["heure", "jour_semaine"])["consommation_kwh"].mean().unstack()
     jours = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"]
-    pivot.columns = [jours[c] if c < 7 else c for c in pivot.columns]
-
+    pivot.columns = [jours[c] if c < 7 else str(c) for c in pivot.columns]
     fig4 = go.Figure(go.Heatmap(
         z=pivot.values, x=pivot.columns, y=pivot.index,
-        colorscale="Viridis", colorbar=dict(title="kWh"),
+        colorscale=[[0, "#EFF6FF"], [0.5, "#3B82F6"], [1, "#1C2B4A"]],
+        colorbar=dict(title="kWh", titlefont=dict(size=11)),
     ))
-    fig4.update_layout(height=300, xaxis_title="Jour", yaxis_title="Heure", **PLOTLY_THEME)
+    fig4.update_layout(
+        height=300, **PLOTLY_LIGHT,
+        xaxis_title="Jour", yaxis_title="Heure",
+        margin=dict(t=10, b=20),
+    )
     st.plotly_chart(fig4, use_container_width=True)
 
 
@@ -289,84 +440,112 @@ if page == "Vue Globale":
 # ==================================================
 
 elif page == "Surveillance Client":
-    st.markdown("## Surveillance par Client")
 
-    clients = sorted(df["client_id"].unique())
-    client_sel = st.selectbox("Selectionner un client", clients)
+    st.markdown("""
+    <div class='page-header'>
+        <h1>Surveillance par Client</h1>
+        <p>Analyse individuelle — serie temporelle, anomalies et profil de consommation</p>
+    </div>""", unsafe_allow_html=True)
 
-    df_c = df[df["client_id"] == client_sel].sort_values("timestamp")
-    info = risk_df[risk_df["client_id"] == client_sel].iloc[0]
+    client_sel = st.selectbox("Selectionner un client", sorted(df["client_id"].unique()))
+    df_c  = df[df["client_id"] == client_sel].sort_values("timestamp")
+    info  = risk_df[risk_df["client_id"] == client_sel].iloc[0]
+    badge = {"Critique":"critique","Eleve":"eleve","Modere":"modere","Faible":"faible"}
+    bc    = badge.get(info["niveau_risque"], "faible")
 
-    badge_map = {"Critique": "critique", "Eleve": "eleve", "Modere": "modere", "Faible": "faible"}
-    badge_cls = badge_map.get(info["niveau_risque"], "faible")
+    c1, c2, c3, c4 = st.columns(4)
+    c1.markdown(kpi(client_sel, "Client ID", "navy"), unsafe_allow_html=True)
+    c2.markdown(kpi(info["type_client"].capitalize(), "Type de client", "bleu"), unsafe_allow_html=True)
+    c3.markdown(kpi(f"{info['conso_moy']:.1f} kWh", "Conso. moyenne", "vert"), unsafe_allow_html=True)
+    c4.markdown(f"""
+    <div class='kpi-card accent-rouge'>
+        <div class='kpi-value'>
+            <span class='badge badge-{bc}'>{info['niveau_risque']}</span>
+        </div>
+        <div class='kpi-label'>Niveau de risque</div>
+    </div>""", unsafe_allow_html=True)
 
-    col_i1, col_i2, col_i3, col_i4 = st.columns(4)
-    col_i1.markdown(f"<div class='kpi-card'><div class='kpi-value'>{client_sel}</div><div class='kpi-label'>Client ID</div></div>", unsafe_allow_html=True)
-    col_i2.markdown(f"<div class='kpi-card'><div class='kpi-value'>{info['type_client'].capitalize()}</div><div class='kpi-label'>Type</div></div>", unsafe_allow_html=True)
-    col_i3.markdown(f"<div class='kpi-card'><div class='kpi-value'>{info['conso_moy']:.1f} kWh</div><div class='kpi-label'>Conso. moyenne</div></div>", unsafe_allow_html=True)
-    col_i4.markdown(f"<div class='kpi-card'><div class='kpi-value'><span class='badge-{badge_cls}'>{info['niveau_risque']}</span></div><div class='kpi-label'>Niveau de risque</div></div>", unsafe_allow_html=True)
-
-    st.markdown("<div class='section-title'>Serie temporelle — 30 derniers jours</div>", unsafe_allow_html=True)
+    st.markdown("<br>", unsafe_allow_html=True)
+    section("Serie temporelle — 30 derniers jours")
 
     df_30 = df_c.tail(30 * 24)
-    anomalies = detect_anomalies_if(df_30)
+    anom  = detect_anomalies(df_30)
 
     fig_ts = go.Figure()
     fig_ts.add_trace(go.Scatter(
         x=df_30["timestamp"], y=df_30["consommation_kwh"],
-        mode="lines", name="Consommation", line=dict(color="#00C9FF", width=1.5),
+        mode="lines", name="Consommation reelle",
+        line=dict(color="#2563EB", width=1.5),
     ))
     fig_ts.add_trace(go.Scatter(
         x=df_30["timestamp"], y=df_30["conso_moy_7j"],
-        mode="lines", name="Moyenne 7j", line=dict(color="#FFD600", width=1.5, dash="dash"),
+        mode="lines", name="Moyenne 7 jours",
+        line=dict(color="#D97706", width=1.5, dash="dash"),
     ))
-    anom_idx = df_30[anomalies == 1]
-    if len(anom_idx):
+    anom_pts = df_30[anom == 1]
+    if len(anom_pts):
         fig_ts.add_trace(go.Scatter(
-            x=anom_idx["timestamp"], y=anom_idx["consommation_kwh"],
-            mode="markers", name="Anomalie",
-            marker=dict(color="#FF1744", size=8, symbol="x"),
+            x=anom_pts["timestamp"], y=anom_pts["consommation_kwh"],
+            mode="markers", name="Anomalie detectee",
+            marker=dict(color="#DC2626", size=8, symbol="x-thin", line=dict(width=2, color="#DC2626")),
         ))
     fig_ts.add_hrect(
         y0=df_c["seuil_h"].quantile(0.9), y1=df_c["consommation_kwh"].max() * 1.05,
-        fillcolor="rgba(255,23,68,0.07)", line_width=0, annotation_text="Zone alerte",
+        fillcolor="rgba(220,38,38,0.05)", line_width=0,
+        annotation_text="Zone d'alerte", annotation_font_color="#DC2626",
     )
-    fig_ts.update_layout(height=380, **PLOTLY_THEME,
-                         xaxis=dict(showgrid=False), yaxis=dict(gridcolor="#1E2535"),
-                         legend=dict(orientation="h", y=1.08))
+    fig_ts.update_layout(
+        height=360, **PLOTLY_LIGHT,
+        xaxis=dict(showgrid=False, title=""),
+        yaxis=dict(gridcolor="#F1F5F9", title="Consommation (kWh)"),
+        legend=dict(orientation="h", y=1.08),
+        margin=dict(t=20, b=20),
+    )
     st.plotly_chart(fig_ts, use_container_width=True)
 
-    col_p1, col_p2 = st.columns(2)
-    with col_p1:
-        st.markdown("<div class='section-title'>Profil hebdomadaire</div>", unsafe_allow_html=True)
-        prof = df_c.groupby("heure")["consommation_kwh"].agg(["mean", "std"]).reset_index()
-        fig_prof = go.Figure()
-        fig_prof.add_trace(go.Scatter(
+    cp1, cp2 = st.columns(2)
+    with cp1:
+        section("Profil horaire moyen")
+        prof = df_c.groupby("heure")["consommation_kwh"].agg(["mean","std"]).reset_index()
+        fig_p = go.Figure()
+        fig_p.add_trace(go.Scatter(
             x=prof["heure"], y=prof["mean"] + prof["std"],
-            fill=None, mode="lines", line_color="rgba(0,201,255,0.2)", showlegend=False,
+            fill=None, mode="lines", line_color="rgba(37,99,235,0.15)", showlegend=False,
         ))
-        fig_prof.add_trace(go.Scatter(
+        fig_p.add_trace(go.Scatter(
             x=prof["heure"], y=prof["mean"] - prof["std"],
-            fill="tonexty", mode="lines", line_color="rgba(0,201,255,0.2)",
-            fillcolor="rgba(0,201,255,0.1)", name="+/- 1 std",
+            fill="tonexty", mode="lines", line_color="rgba(37,99,235,0.15)",
+            fillcolor="rgba(37,99,235,0.08)", name="+/- 1 ecart-type",
         ))
-        fig_prof.add_trace(go.Scatter(
+        fig_p.add_trace(go.Scatter(
             x=prof["heure"], y=prof["mean"],
             mode="lines+markers", name="Moyenne",
-            line=dict(color="#00C9FF", width=2),
+            line=dict(color="#2563EB", width=2),
+            marker=dict(size=4),
         ))
-        fig_prof.update_layout(height=300, **PLOTLY_THEME, yaxis=dict(gridcolor="#1E2535"))
-        st.plotly_chart(fig_prof, use_container_width=True)
-
-    with col_p2:
-        st.markdown("<div class='section-title'>Distribution des consommations</div>", unsafe_allow_html=True)
-        fig_hist = px.histogram(
-            df_c, x="consommation_kwh", nbins=50, color_discrete_sequence=["#00C9FF"],
-            labels={"consommation_kwh": "kWh"}, **PLOTLY_THEME,
+        fig_p.update_layout(
+            height=280, **PLOTLY_LIGHT,
+            xaxis=dict(tickmode="linear", dtick=4, showgrid=False, title="Heure"),
+            yaxis=dict(gridcolor="#F1F5F9", title="kWh"),
+            margin=dict(t=10, b=20),
         )
-        fig_hist.update_layout(height=300, yaxis=dict(gridcolor="#1E2535"),
-                               bargap=0.05, showlegend=False)
-        st.plotly_chart(fig_hist, use_container_width=True)
+        st.plotly_chart(fig_p, use_container_width=True)
+
+    with cp2:
+        section("Distribution des consommations")
+        fig_h = px.histogram(
+            df_c, x="consommation_kwh", nbins=50,
+            color_discrete_sequence=["#2563EB"],
+            labels={"consommation_kwh": "kWh"},
+            **PLOTLY_LIGHT,
+        )
+        fig_h.update_layout(
+            height=280, showlegend=False, bargap=0.04,
+            xaxis=dict(showgrid=False, title="Consommation (kWh)"),
+            yaxis=dict(gridcolor="#F1F5F9", title="Frequence"),
+            margin=dict(t=10, b=20),
+        )
+        st.plotly_chart(fig_h, use_container_width=True)
 
 
 # ==================================================
@@ -374,54 +553,89 @@ elif page == "Surveillance Client":
 # ==================================================
 
 elif page == "Score de Risque":
-    st.markdown("## Carte de Risque — 100 Clients")
+
+    st.markdown("""
+    <div class='page-header'>
+        <h1>Carte de Risque — 100 Clients</h1>
+        <p>Scoring multicritere base sur l'ecart de consommation, la variabilite et le type de client</p>
+    </div>""", unsafe_allow_html=True)
 
     dist = risk_df["niveau_risque"].value_counts().reindex(
-        ["Critique", "Eleve", "Modere", "Faible"], fill_value=0
+        ["Critique","Eleve","Modere","Faible"], fill_value=0
     )
-    col1, col2, col3, col4 = st.columns(4)
-    for col, niveau in zip([col1, col2, col3, col4], ["Critique", "Eleve", "Modere", "Faible"]):
-        col.markdown(f"""
-        <div class='kpi-card'>
-            <div class='kpi-value' style='color:{RISK_COLORS[niveau]}'>{dist[niveau]}</div>
-            <div class='kpi-label'>{niveau}</div>
-        </div>""", unsafe_allow_html=True)
+    c1, c2, c3, c4 = st.columns(4)
+    c1.markdown(kpi(dist["Critique"], "Critique", "rouge"),   unsafe_allow_html=True)
+    c2.markdown(kpi(dist["Eleve"],    "Eleve",    "ambre"),   unsafe_allow_html=True)
+    c3.markdown(kpi(dist["Modere"],   "Modere",   "bleu"),    unsafe_allow_html=True)
+    c4.markdown(kpi(dist["Faible"],   "Faible",   "vert"),    unsafe_allow_html=True)
 
-    st.markdown("<div class='section-title'>Scatter — Score de risque par client</div>",
-                unsafe_allow_html=True)
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    section("Scatter — Score de risque par client")
     fig_sc = px.scatter(
         risk_df, x="conso_moy", y="score_risque",
         color="niveau_risque", color_discrete_map=RISK_COLORS,
         symbol="type_client", size="conso_std",
-        hover_data=["client_id", "type_client", "score_risque"],
-        labels={"conso_moy": "Conso. moyenne (kWh)", "score_risque": "Score de risque (%)"},
-        **PLOTLY_THEME,
+        size_max=18,
+        hover_data=["client_id","type_client","score_risque"],
+        labels={"conso_moy":"Consommation moyenne (kWh)", "score_risque":"Score de risque (%)"},
+        **PLOTLY_LIGHT,
     )
-    fig_sc.update_layout(height=420, legend=dict(orientation="h", y=1.05),
-                         yaxis=dict(gridcolor="#1E2535"), xaxis=dict(showgrid=False))
+    fig_sc.update_layout(
+        height=400,
+        legend=dict(orientation="h", y=1.05),
+        xaxis=dict(showgrid=False, title="Consommation moyenne (kWh)"),
+        yaxis=dict(gridcolor="#F1F5F9", title="Score de risque (%)"),
+        margin=dict(t=20, b=20),
+    )
     st.plotly_chart(fig_sc, use_container_width=True)
 
-    st.markdown("<div class='section-title'>Top 20 clients — Score de risque</div>",
-                unsafe_allow_html=True)
-    top20 = risk_df.nlargest(20, "score_risque")
-    fig_bar = px.bar(
-        top20, x="client_id", y="score_risque", color="niveau_risque",
-        color_discrete_map=RISK_COLORS,
-        labels={"score_risque": "Score (%)", "client_id": "Client"},
-        **PLOTLY_THEME,
-    )
-    fig_bar.update_layout(height=350, xaxis=dict(tickangle=-45),
-                          yaxis=dict(gridcolor="#1E2535"), showlegend=True)
-    st.plotly_chart(fig_bar, use_container_width=True)
+    sr1, sr2 = st.columns(2)
+    with sr1:
+        section("Top 20 clients — Score de risque")
+        top20 = risk_df.nlargest(20, "score_risque")
+        fig_b = px.bar(
+            top20, x="client_id", y="score_risque",
+            color="niveau_risque", color_discrete_map=RISK_COLORS,
+            labels={"score_risque":"Score (%)","client_id":"Client"},
+            **PLOTLY_LIGHT,
+        )
+        fig_b.update_layout(
+            height=320, showlegend=False,
+            xaxis=dict(tickangle=-45, showgrid=False),
+            yaxis=dict(gridcolor="#F1F5F9"),
+            margin=dict(t=10, b=20),
+        )
+        st.plotly_chart(fig_b, use_container_width=True)
 
-    st.markdown("<div class='section-title'>Tableau detaille</div>", unsafe_allow_html=True)
-    display_df = risk_df[["client_id", "type_client", "conso_moy", "conso_std",
-                           "score_risque", "niveau_risque"]].sort_values("score_risque", ascending=False)
-    display_df.columns = ["Client ID", "Type", "Conso Moy (kWh)", "Ecart-type", "Score (%)", "Niveau"]
-    display_df["Conso Moy (kWh)"] = display_df["Conso Moy (kWh)"].round(2)
-    display_df["Ecart-type"] = display_df["Ecart-type"].round(2)
-    display_df["Score (%)"] = display_df["Score (%)"].round(2)
-    st.dataframe(display_df.reset_index(drop=True), use_container_width=True, height=400)
+    with sr2:
+        section("Distribution des niveaux de risque")
+        risk_counts = risk_df["niveau_risque"].value_counts().reindex(
+            ["Critique","Eleve","Modere","Faible"], fill_value=0
+        ).reset_index()
+        risk_counts.columns = ["niveau", "nb"]
+        fig_rc = px.bar(
+            risk_counts, x="niveau", y="nb",
+            color="niveau", color_discrete_map=RISK_COLORS,
+            labels={"nb":"Nombre de clients","niveau":"Niveau"},
+            **PLOTLY_LIGHT,
+        )
+        fig_rc.update_layout(
+            height=320, showlegend=False,
+            xaxis=dict(showgrid=False),
+            yaxis=dict(gridcolor="#F1F5F9"),
+            margin=dict(t=10, b=20),
+        )
+        st.plotly_chart(fig_rc, use_container_width=True)
+
+    section("Tableau complet — Scoring des 100 clients")
+    disp = risk_df[["client_id","type_client","conso_moy","conso_std","score_risque","niveau_risque"]]\
+        .sort_values("score_risque", ascending=False).copy()
+    disp.columns = ["Client ID","Type","Conso Moy (kWh)","Ecart-type","Score (%)","Niveau"]
+    disp["Conso Moy (kWh)"] = disp["Conso Moy (kWh)"].round(2)
+    disp["Ecart-type"]      = disp["Ecart-type"].round(2)
+    disp["Score (%)"]       = disp["Score (%)"].round(2)
+    st.dataframe(disp.reset_index(drop=True), use_container_width=True, height=380)
 
 
 # ==================================================
@@ -429,66 +643,120 @@ elif page == "Score de Risque":
 # ==================================================
 
 elif page == "Predictions":
-    st.markdown("## Prevision Energetique")
 
-    model_results = pd.DataFrame({
-        "Modele":  ["Prophet (baseline)", "GRU", "CNN-LSTM", "LSTM (meilleur)"],
-        "MAE (kWh)": [13.56, 5.32, 5.27, 4.23],
-        "RMSE (kWh)": [16.19, 7.35, 7.00, 5.65],
-        "Amelioration vs Prophet (%)": [0, 60.8, 61.1, 68.8],
+    st.markdown("""
+    <div class='page-header'>
+        <h1>Prevision Energetique</h1>
+        <p>Comparaison des modeles de prevision : Prophet, GRU, CNN-LSTM et LSTM</p>
+    </div>""", unsafe_allow_html=True)
+
+    model_df = pd.DataFrame({
+        "Modele":  ["Prophet (baseline)", "GRU", "CNN-LSTM", "LSTM"],
+        "MAE":     [13.56, 5.32, 5.27, 4.23],
+        "RMSE":    [16.19, 7.35, 7.00, 5.65],
+        "Amelioration": [0.0, 60.8, 61.1, 68.8],
     })
 
-    st.markdown("<div class='section-title'>Comparaison des modeles de prevision</div>",
-                unsafe_allow_html=True)
+    # KPIs modeles
+    mc1, mc2, mc3, mc4 = st.columns(4)
+    mc1.markdown(kpi("13.56 kWh", "Prophet — MAE", "gris"),  unsafe_allow_html=True)
+    mc2.markdown(kpi("5.32 kWh",  "GRU — MAE",    "ambre"), unsafe_allow_html=True)
+    mc3.markdown(kpi("5.27 kWh",  "CNN-LSTM — MAE","bleu"), unsafe_allow_html=True)
+    mc4.markdown(kpi("4.23 kWh",  "LSTM — MAE (meilleur)", "vert"), unsafe_allow_html=True)
 
-    col_m1, col_m2 = st.columns(2)
-    with col_m1:
-        fig_mae = px.bar(
-            model_results, x="Modele", y="MAE (kWh)", color="Modele",
-            color_discrete_sequence=["#FFD600", "#FF6B35", "#00E676", "#00C9FF"],
-            title="MAE par modele (plus bas = meilleur)", **PLOTLY_THEME,
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    pm1, pm2 = st.columns(2)
+    with pm1:
+        section("Comparaison MAE — Mean Absolute Error")
+        colors_mod = ["#94A3B8", "#D97706", "#2563EB", "#16A34A"]
+        fig_mae = go.Figure()
+        for i, row in model_df.iterrows():
+            fig_mae.add_trace(go.Bar(
+                x=[row["Modele"]], y=[row["MAE"]],
+                name=row["Modele"],
+                marker_color=colors_mod[i],
+                text=[f"{row['MAE']} kWh"],
+                textposition="outside",
+            ))
+        fig_mae.update_layout(
+            height=320, showlegend=False, **PLOTLY_LIGHT,
+            xaxis=dict(showgrid=False),
+            yaxis=dict(gridcolor="#F1F5F9", title="MAE (kWh)"),
+            margin=dict(t=30, b=20),
+            title=dict(text="Plus bas = meilleur", font=dict(size=11, color="#64748B")),
         )
-        fig_mae.update_layout(height=320, showlegend=False, yaxis=dict(gridcolor="#1E2535"))
         st.plotly_chart(fig_mae, use_container_width=True)
 
-    with col_m2:
-        fig_rmse = px.bar(
-            model_results, x="Modele", y="RMSE (kWh)", color="Modele",
-            color_discrete_sequence=["#FFD600", "#FF6B35", "#00E676", "#00C9FF"],
-            title="RMSE par modele (plus bas = meilleur)", **PLOTLY_THEME,
+    with pm2:
+        section("Amelioration vs Prophet (baseline)")
+        fig_imp = go.Figure()
+        for i, row in model_df.iterrows():
+            fig_imp.add_trace(go.Bar(
+                x=[row["Modele"]], y=[row["Amelioration"]],
+                name=row["Modele"],
+                marker_color=colors_mod[i],
+                text=[f"+{row['Amelioration']}%" if row["Amelioration"] > 0 else "baseline"],
+                textposition="outside",
+            ))
+        fig_imp.update_layout(
+            height=320, showlegend=False, **PLOTLY_LIGHT,
+            xaxis=dict(showgrid=False),
+            yaxis=dict(gridcolor="#F1F5F9", title="Amelioration (%)"),
+            margin=dict(t=30, b=20),
+            title=dict(text="Plus haut = meilleur", font=dict(size=11, color="#64748B")),
         )
-        fig_rmse.update_layout(height=320, showlegend=False, yaxis=dict(gridcolor="#1E2535"))
-        st.plotly_chart(fig_rmse, use_container_width=True)
+        st.plotly_chart(fig_imp, use_container_width=True)
 
-    st.markdown("<div class='section-title'>Simulation de prevision — client selectionne</div>",
-                unsafe_allow_html=True)
+    st.markdown("""
+    <div class='info-box'>
+        Le modele <strong>LSTM</strong> est le plus performant avec une MAE de <strong>4.23 kWh</strong>
+        et un RMSE de <strong>5.65 kWh</strong>, soit une amelioration de <strong>+68.8%</strong>
+        par rapport au modele baseline Prophet.
+    </div>
+    """, unsafe_allow_html=True)
 
-    client_pred = st.selectbox("Client pour simulation", sorted(df["client_id"].unique()), key="pred_client")
-    df_p = df[df["client_id"] == client_pred].sort_values("timestamp").tail(168)
+    section("Simulation de prevision — 7 derniers jours")
+    client_p = st.selectbox("Client", sorted(df["client_id"].unique()), key="pc")
+    df_p = df[df["client_id"] == client_p].sort_values("timestamp").tail(168)
 
     np.random.seed(42)
-    noise_lstm    = np.random.normal(0, 4.23, len(df_p))
-    noise_prophet = np.random.normal(0, 13.56, len(df_p))
-    pred_lstm     = df_p["consommation_kwh"].values + noise_lstm
-    pred_prophet  = df_p["consommation_kwh"].values + noise_prophet
+    pred_lstm    = df_p["consommation_kwh"].values + np.random.normal(0, 4.23,  len(df_p))
+    pred_prophet = df_p["consommation_kwh"].values + np.random.normal(0, 13.56, len(df_p))
 
-    fig_pred = go.Figure()
-    fig_pred.add_trace(go.Scatter(x=df_p["timestamp"], y=df_p["consommation_kwh"],
-                                  mode="lines", name="Reel", line=dict(color="#CCD6F6", width=2)))
-    fig_pred.add_trace(go.Scatter(x=df_p["timestamp"], y=pred_lstm,
-                                  mode="lines", name="LSTM (MAE=4.23)", line=dict(color="#00C9FF", width=1.5)))
-    fig_pred.add_trace(go.Scatter(x=df_p["timestamp"], y=pred_prophet,
-                                  mode="lines", name="Prophet (MAE=13.56)", line=dict(color="#FFD600", width=1.5, dash="dot")))
-    fig_pred.update_layout(height=380, **PLOTLY_THEME,
-                           xaxis=dict(showgrid=False), yaxis=dict(gridcolor="#1E2535"),
-                           legend=dict(orientation="h", y=1.08))
-    st.plotly_chart(fig_pred, use_container_width=True)
+    fig_sim = go.Figure()
+    fig_sim.add_trace(go.Scatter(
+        x=df_p["timestamp"], y=df_p["consommation_kwh"],
+        mode="lines", name="Valeurs reelles",
+        line=dict(color="#1C2B4A", width=2),
+    ))
+    fig_sim.add_trace(go.Scatter(
+        x=df_p["timestamp"], y=pred_lstm,
+        mode="lines", name="LSTM (MAE=4.23 kWh)",
+        line=dict(color="#16A34A", width=1.5),
+    ))
+    fig_sim.add_trace(go.Scatter(
+        x=df_p["timestamp"], y=pred_prophet,
+        mode="lines", name="Prophet (MAE=13.56 kWh)",
+        line=dict(color="#94A3B8", width=1.5, dash="dot"),
+    ))
+    fig_sim.update_layout(
+        height=360, **PLOTLY_LIGHT,
+        xaxis=dict(showgrid=False, title=""),
+        yaxis=dict(gridcolor="#F1F5F9", title="Consommation (kWh)"),
+        legend=dict(orientation="h", y=1.08),
+        margin=dict(t=20, b=20),
+    )
+    st.plotly_chart(fig_sim, use_container_width=True)
 
-    st.markdown("<div class='section-title'>Recapitulatif des performances</div>", unsafe_allow_html=True)
-    st.dataframe(model_results.set_index("Modele"), use_container_width=True)
-
-    st.info("Le modele LSTM atteint une amelioration de +68.8% par rapport a Prophet (baseline), "
-            "avec MAE = 4.23 kWh et RMSE = 5.65 kWh.")
+    section("Tableau recapitulatif des modeles")
+    st.dataframe(
+        model_df.rename(columns={
+            "Modele":"Modele","MAE":"MAE (kWh)","RMSE":"RMSE (kWh)",
+            "Amelioration":"Amelioration vs Prophet (%)"
+        }).set_index("Modele"),
+        use_container_width=True,
+    )
 
 
 # ==================================================
@@ -496,68 +764,81 @@ elif page == "Predictions":
 # ==================================================
 
 elif page == "Alertes":
-    st.markdown("## Systeme d'Alertes")
+
+    st.markdown("""
+    <div class='page-header'>
+        <h1>Systeme d'Alertes</h1>
+        <p>Clients necessitant une attention immediate — recommandations et synthese des anomalies</p>
+    </div>""", unsafe_allow_html=True)
+
+    # KPIs alertes
+    ac1, ac2, ac3 = st.columns(3)
+    ac1.markdown(kpi(f"{int(len(df)*0.0462):,}", "Anomalies IF (4.62%)", "ambre"), unsafe_allow_html=True)
+    ac2.markdown(kpi("1,092", "Anomalies LSTM AE (3.12%)", "bleu"), unsafe_allow_html=True)
+    ac3.markdown(kpi("8", "Consensus IF + AE (haute confiance)", "rouge"), unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
 
     critiques = risk_df[risk_df["niveau_risque"] == "Critique"]
     eleves    = risk_df[risk_df["niveau_risque"] == "Eleve"]
     moderes   = risk_df[risk_df["niveau_risque"] == "Modere"]
 
     if len(critiques):
-        st.markdown("### Clients Critiques")
+        section(f"Clients Critiques ({len(critiques)})")
         for _, row in critiques.iterrows():
             with st.expander(f"{row['client_id']} — Score {row['score_risque']:.1f}% — {row['type_client'].capitalize()}"):
-                c1, c2, c3 = st.columns(3)
-                c1.metric("Conso. Moyenne", f"{row['conso_moy']:.2f} kWh")
-                c2.metric("Ecart-type", f"{row['conso_std']:.2f} kWh")
-                c3.metric("Score Risque", f"{row['score_risque']:.1f}%", delta="CRITIQUE")
+                rc1, rc2, rc3 = st.columns(3)
+                rc1.metric("Consommation moyenne", f"{row['conso_moy']:.2f} kWh")
+                rc2.metric("Ecart-type", f"{row['conso_std']:.2f} kWh")
+                rc3.metric("Score de risque", f"{row['score_risque']:.1f}%")
                 st.markdown("""
-                **Recommandations :**
+                **Actions recommandees :**
                 - Inspection physique immediate du compteur
-                - Contacter le client sous 24h
+                - Prise de contact avec le client sous 24 heures
                 - Audit complet de la consommation sur 30 jours
-                - Surveillance renforcee (alertes temps reel)
+                - Activation de la surveillance renforcee en temps reel
                 """)
 
     if len(eleves):
-        st.markdown("### Clients a Risque Eleve")
+        section(f"Clients a Risque Eleve ({len(eleves)})")
         for _, row in eleves.iterrows():
             with st.expander(f"{row['client_id']} — Score {row['score_risque']:.1f}% — {row['type_client'].capitalize()}"):
-                c1, c2, c3 = st.columns(3)
-                c1.metric("Conso. Moyenne", f"{row['conso_moy']:.2f} kWh")
-                c2.metric("Ecart-type", f"{row['conso_std']:.2f} kWh")
-                c3.metric("Score Risque", f"{row['score_risque']:.1f}%")
+                re1, re2, re3 = st.columns(3)
+                re1.metric("Consommation moyenne", f"{row['conso_moy']:.2f} kWh")
+                re2.metric("Ecart-type", f"{row['conso_std']:.2f} kWh")
+                re3.metric("Score de risque", f"{row['score_risque']:.1f}%")
                 st.markdown("""
-                **Recommandations :**
-                - Analyse des pics de consommation
-                - Planifier une visite de controle dans la semaine
-                - Activer les alertes automatiques
+                **Actions recommandees :**
+                - Analyse des pics de consommation anormaux
+                - Planification d'une visite de controle sous 7 jours
+                - Activation des alertes automatiques par seuil
                 """)
 
     if len(moderes):
-        st.markdown("### Clients a Risque Modere")
-        with st.expander(f"Voir les {len(moderes)} clients a risque modere"):
+        section(f"Clients a Risque Modere ({len(moderes)})")
+        with st.expander(f"Voir les {len(moderes)} clients"):
             st.dataframe(
-                moderes[["client_id", "type_client", "conso_moy", "score_risque"]]
+                moderes[["client_id","type_client","conso_moy","score_risque"]]
                 .sort_values("score_risque", ascending=False)
-                .rename(columns={"client_id": "Client", "type_client": "Type",
-                                  "conso_moy": "Conso Moy (kWh)", "score_risque": "Score (%)"})
-                .reset_index(drop=True),
+                .rename(columns={
+                    "client_id":"Client","type_client":"Type",
+                    "conso_moy":"Conso Moy (kWh)","score_risque":"Score (%)"
+                }).reset_index(drop=True),
                 use_container_width=True,
             )
 
-    st.markdown("---")
-    st.markdown("### Synthese des Anomalies Detectees")
-    col_s1, col_s2, col_s3 = st.columns(3)
-    col_s1.metric("Isolation Forest", f"{int(len(df)*0.0462):,} anomalies", "4.62% global")
-    col_s2.metric("LSTM Autoencoder", "1,092 anomalies", "3.12% (seuil 0.002033)")
-    col_s3.metric("Consensus IF + AE", "8 anomalies", "haute confiance")
+    section("Simulation de detection de fraudes — Client SRM-055")
+    fraud_df = pd.DataFrame({
+        "Type de fraude":       ["Pic artificiel (+200%)", "Coupure simulee", "Sous-comptage (-30%)"],
+        "Taux de detection IF": ["100%", "100%", "38%"],
+        "Resultat":             ["Detecte", "Detecte", "Partiellement detecte"],
+    })
+    st.dataframe(fraud_df.set_index("Type de fraude"), use_container_width=True)
 
     st.markdown("""
-    ---
-    #### Simulation de Fraudes (SRM-055)
-    | Type de fraude | Taux de detection |
-    |---|---|
-    | Pic artificiel (+200%) | 100% |
-    | Coupure simulee | 100% |
-    | Sous-comptage (-30%) | 38% |
-    """)
+    <div class='info-box'>
+        <strong>Synthese :</strong> L'Isolation Forest detecte avec precision les pics et coupures (100%),
+        mais presente une sensibilite limitee au sous-comptage progressif (38%).
+        Le consensus IF + LSTM Autoencoder identifie <strong>8 anomalies de haute confiance</strong>.
+    </div>
+    """, unsafe_allow_html=True)

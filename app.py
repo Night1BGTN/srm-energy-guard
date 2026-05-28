@@ -9,7 +9,7 @@ import plotly.graph_objects as go
 # -------------------------------------------------
 st.set_page_config(
     page_title="SRM Smart Energy Guard",
-    page_icon="⚡",
+    page_icon=None,
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -294,7 +294,6 @@ with st.sidebar:
 if not DATA_LOADED:
     st.markdown("""
     <div style='text-align:center; padding:80px 20px;'>
-        <div style='font-size:3rem; margin-bottom:16px;'>⚡</div>
         <h1 style='font-size:2.2rem; font-weight:700; color:#1C2B4A; margin-bottom:8px;'>
             SRM Smart Energy Guard
         </h1>

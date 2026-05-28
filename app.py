@@ -153,12 +153,18 @@ footer {visibility: hidden;}
 # -------------------------------------------------
 # THEME PLOTLY CLAIR
 # -------------------------------------------------
-PLOTLY_LIGHT = dict(
-    template="plotly_white",
+# Pour px.* : seulement template
+PLOTLY_PX = dict(template="plotly_white")
+
+# Pour update_layout : tous les params
+PLOTLY_LAYOUT = dict(
     paper_bgcolor="rgba(0,0,0,0)",
     plot_bgcolor="rgba(0,0,0,0)",
     font=dict(family="IBM Plex Sans", color="#1A1D23", size=12),
 )
+
+# Alias pour compatibilite
+PLOTLY_LIGHT = PLOTLY_PX
 
 PALETTE = {
     "bleu":   "#2563EB",
@@ -370,13 +376,13 @@ if page == "Vue Globale":
             line=dict(color=cmap[tc], width=2),
         ))
     fig1.update_layout(
-        height=340, **PLOTLY_LIGHT,
+        height=340, **PLOTLY_LAYOUT,
         xaxis=dict(showgrid=False, title=""),
         yaxis=dict(gridcolor="#F1F5F9", title="kWh moyen"),
         legend=dict(orientation="h", y=1.08),
         margin=dict(t=20, b=20, l=10, r=10),
     )
-    st.plotly_chart(fig1, use_container_width=True)
+    st.plotly_chart(fig1, width='stretch')
 
     col_a, col_b = st.columns(2)
 
@@ -389,11 +395,11 @@ if page == "Vue Globale":
             tc, names="type_client", values="n",
             color="type_client",
             color_discrete_map={t: cmap.get(t, "#64748B") for t in tc["type_client"]},
-            hole=0.5, **PLOTLY_LIGHT,
+            hole=0.5, **PLOTLY_PX,
         )
         fig2.update_traces(textfont_size=12)
-        fig2.update_layout(height=280, margin=dict(t=10, b=10))
-        st.plotly_chart(fig2, use_container_width=True)
+        fig2.update_layout(height=280, margin=dict(t=10, b=10), **PLOTLY_LAYOUT)
+        st.plotly_chart(fig2, width='stretch')
 
     with col_b:
         section("Profil horaire moyen par type")
@@ -409,13 +415,13 @@ if page == "Vue Globale":
                 marker=dict(size=5),
             ))
         fig3.update_layout(
-            height=280, **PLOTLY_LIGHT,
+            height=280, **PLOTLY_LAYOUT,
             xaxis=dict(tickmode="linear", dtick=4, title="Heure", showgrid=False),
             yaxis=dict(gridcolor="#F1F5F9", title="kWh"),
             legend=dict(orientation="h", y=1.08),
             margin=dict(t=10, b=20),
         )
-        st.plotly_chart(fig3, use_container_width=True)
+        st.plotly_chart(fig3, width='stretch')
 
     section("Heatmap de consommation — Heure x Jour de la semaine")
     pivot = df.groupby(["heure", "jour_semaine"])["consommation_kwh"].mean().unstack()
@@ -427,11 +433,11 @@ if page == "Vue Globale":
         colorbar=dict(title="kWh", titlefont=dict(size=11)),
     ))
     fig4.update_layout(
-        height=300, **PLOTLY_LIGHT,
+        height=300, **PLOTLY_LAYOUT,
         xaxis_title="Jour", yaxis_title="Heure",
         margin=dict(t=10, b=20),
     )
-    st.plotly_chart(fig4, use_container_width=True)
+    st.plotly_chart(fig4, width='stretch')
 
 
 # ==================================================
@@ -494,13 +500,13 @@ elif page == "Surveillance Client":
         annotation_text="Zone d'alerte", annotation_font_color="#DC2626",
     )
     fig_ts.update_layout(
-        height=360, **PLOTLY_LIGHT,
+        height=360, **PLOTLY_LAYOUT,
         xaxis=dict(showgrid=False, title=""),
         yaxis=dict(gridcolor="#F1F5F9", title="Consommation (kWh)"),
         legend=dict(orientation="h", y=1.08),
         margin=dict(t=20, b=20),
     )
-    st.plotly_chart(fig_ts, use_container_width=True)
+    st.plotly_chart(fig_ts, width='stretch')
 
     cp1, cp2 = st.columns(2)
     with cp1:
@@ -523,12 +529,12 @@ elif page == "Surveillance Client":
             marker=dict(size=4),
         ))
         fig_p.update_layout(
-            height=280, **PLOTLY_LIGHT,
+            height=280, **PLOTLY_LAYOUT,
             xaxis=dict(tickmode="linear", dtick=4, showgrid=False, title="Heure"),
             yaxis=dict(gridcolor="#F1F5F9", title="kWh"),
             margin=dict(t=10, b=20),
         )
-        st.plotly_chart(fig_p, use_container_width=True)
+        st.plotly_chart(fig_p, width='stretch')
 
     with cp2:
         section("Distribution des consommations")
@@ -536,15 +542,15 @@ elif page == "Surveillance Client":
             df_c, x="consommation_kwh", nbins=50,
             color_discrete_sequence=["#2563EB"],
             labels={"consommation_kwh": "kWh"},
-            **PLOTLY_LIGHT,
+            **PLOTLY_PX,
         )
         fig_h.update_layout(
-            height=280, showlegend=False, bargap=0.04,
+            height=280, showlegend=False, bargap=0.04, **PLOTLY_LAYOUT,
             xaxis=dict(showgrid=False, title="Consommation (kWh)"),
             yaxis=dict(gridcolor="#F1F5F9", title="Frequence"),
             margin=dict(t=10, b=20),
         )
-        st.plotly_chart(fig_h, use_container_width=True)
+        st.plotly_chart(fig_h, width='stretch')
 
 
 # ==================================================
@@ -578,16 +584,16 @@ elif page == "Score de Risque":
         size_max=18,
         hover_data=["client_id","type_client","score_risque"],
         labels={"conso_moy":"Consommation moyenne (kWh)", "score_risque":"Score de risque (%)"},
-        **PLOTLY_LIGHT,
+        **PLOTLY_PX,
     )
     fig_sc.update_layout(
-        height=400,
+        height=400, **PLOTLY_LAYOUT,
         legend=dict(orientation="h", y=1.05),
         xaxis=dict(showgrid=False, title="Consommation moyenne (kWh)"),
         yaxis=dict(gridcolor="#F1F5F9", title="Score de risque (%)"),
         margin=dict(t=20, b=20),
     )
-    st.plotly_chart(fig_sc, use_container_width=True)
+    st.plotly_chart(fig_sc, width='stretch')
 
     sr1, sr2 = st.columns(2)
     with sr1:
@@ -597,15 +603,15 @@ elif page == "Score de Risque":
             top20, x="client_id", y="score_risque",
             color="niveau_risque", color_discrete_map=RISK_COLORS,
             labels={"score_risque":"Score (%)","client_id":"Client"},
-            **PLOTLY_LIGHT,
+            **PLOTLY_PX,
         )
         fig_b.update_layout(
-            height=320, showlegend=False,
+            height=320, showlegend=False, **PLOTLY_LAYOUT,
             xaxis=dict(tickangle=-45, showgrid=False),
             yaxis=dict(gridcolor="#F1F5F9"),
             margin=dict(t=10, b=20),
         )
-        st.plotly_chart(fig_b, use_container_width=True)
+        st.plotly_chart(fig_b, width='stretch')
 
     with sr2:
         section("Distribution des niveaux de risque")
@@ -617,15 +623,15 @@ elif page == "Score de Risque":
             risk_counts, x="niveau", y="nb",
             color="niveau", color_discrete_map=RISK_COLORS,
             labels={"nb":"Nombre de clients","niveau":"Niveau"},
-            **PLOTLY_LIGHT,
+            **PLOTLY_PX,
         )
         fig_rc.update_layout(
-            height=320, showlegend=False,
+            height=320, showlegend=False, **PLOTLY_LAYOUT,
             xaxis=dict(showgrid=False),
             yaxis=dict(gridcolor="#F1F5F9"),
             margin=dict(t=10, b=20),
         )
-        st.plotly_chart(fig_rc, use_container_width=True)
+        st.plotly_chart(fig_rc, width='stretch')
 
     section("Tableau complet — Scoring des 100 clients")
     disp = risk_df[["client_id","type_client","conso_moy","conso_std","score_risque","niveau_risque"]]\
@@ -634,7 +640,7 @@ elif page == "Score de Risque":
     disp["Conso Moy (kWh)"] = disp["Conso Moy (kWh)"].round(2)
     disp["Ecart-type"]      = disp["Ecart-type"].round(2)
     disp["Score (%)"]       = disp["Score (%)"].round(2)
-    st.dataframe(disp.reset_index(drop=True), use_container_width=True, height=380)
+    st.dataframe(disp.reset_index(drop=True), width='stretch', height=380)
 
 
 # ==================================================
@@ -679,13 +685,13 @@ elif page == "Predictions":
                 textposition="outside",
             ))
         fig_mae.update_layout(
-            height=320, showlegend=False, **PLOTLY_LIGHT,
+            height=320, showlegend=False, **PLOTLY_LAYOUT,
             xaxis=dict(showgrid=False),
             yaxis=dict(gridcolor="#F1F5F9", title="MAE (kWh)"),
             margin=dict(t=30, b=20),
             title=dict(text="Plus bas = meilleur", font=dict(size=11, color="#64748B")),
         )
-        st.plotly_chart(fig_mae, use_container_width=True)
+        st.plotly_chart(fig_mae, width='stretch')
 
     with pm2:
         section("Amelioration vs Prophet (baseline)")
@@ -699,13 +705,13 @@ elif page == "Predictions":
                 textposition="outside",
             ))
         fig_imp.update_layout(
-            height=320, showlegend=False, **PLOTLY_LIGHT,
+            height=320, showlegend=False, **PLOTLY_LAYOUT,
             xaxis=dict(showgrid=False),
             yaxis=dict(gridcolor="#F1F5F9", title="Amelioration (%)"),
             margin=dict(t=30, b=20),
             title=dict(text="Plus haut = meilleur", font=dict(size=11, color="#64748B")),
         )
-        st.plotly_chart(fig_imp, use_container_width=True)
+        st.plotly_chart(fig_imp, width='stretch')
 
     st.markdown("""
     <div class='info-box'>
@@ -740,13 +746,13 @@ elif page == "Predictions":
         line=dict(color="#94A3B8", width=1.5, dash="dot"),
     ))
     fig_sim.update_layout(
-        height=360, **PLOTLY_LIGHT,
+        height=360, **PLOTLY_LAYOUT,
         xaxis=dict(showgrid=False, title=""),
         yaxis=dict(gridcolor="#F1F5F9", title="Consommation (kWh)"),
         legend=dict(orientation="h", y=1.08),
         margin=dict(t=20, b=20),
     )
-    st.plotly_chart(fig_sim, use_container_width=True)
+    st.plotly_chart(fig_sim, width='stretch')
 
     section("Tableau recapitulatif des modeles")
     st.dataframe(
@@ -754,7 +760,7 @@ elif page == "Predictions":
             "Modele":"Modele","MAE":"MAE (kWh)","RMSE":"RMSE (kWh)",
             "Amelioration":"Amelioration vs Prophet (%)"
         }).set_index("Modele"),
-        use_container_width=True,
+        width='stretch',
     )
 
 
@@ -823,7 +829,7 @@ elif page == "Alertes":
                     "client_id":"Client","type_client":"Type",
                     "conso_moy":"Conso Moy (kWh)","score_risque":"Score (%)"
                 }).reset_index(drop=True),
-                use_container_width=True,
+                width='stretch',
             )
 
     section("Simulation de detection de fraudes — Client SRM-055")
@@ -832,7 +838,7 @@ elif page == "Alertes":
         "Taux de detection IF": ["100%", "100%", "38%"],
         "Resultat":             ["Detecte", "Detecte", "Partiellement detecte"],
     })
-    st.dataframe(fraud_df.set_index("Type de fraude"), use_container_width=True)
+    st.dataframe(fraud_df.set_index("Type de fraude"), width='stretch')
 
     st.markdown("""
     <div class='info-box'>

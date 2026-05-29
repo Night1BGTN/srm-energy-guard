@@ -466,3 +466,4 @@ elif page == "Alertes":
     })
     st.dataframe(fraud.set_index("Type de fraude"), width='stretch')
     st.markdown("<div class='info-box'><strong>Synthese :</strong> L'Isolation Forest detecte avec precision les pics et coupures (100%), mais presente une sensibilite limitee au sous-comptage progressif (38%). Le consensus IF + LSTM AE identifie <strong>8 anomalies de haute confiance</strong>.</div>", unsafe_allow_html=True)
+
